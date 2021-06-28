@@ -106,3 +106,14 @@ func (c *Client) QueryBlock(number uint64) (*common.Block, error) {
 	return block, nil
 
 }
+
+func (c *Client) QueryInfo() (*fab.BlockchainInfoResponse, error) {
+	info, err := c.lc.QueryInfo()
+	if err != nil {
+		fmt.Printf("failed to query block: %s\n", err)
+		return nil, err
+	}
+
+	return info, nil
+
+}

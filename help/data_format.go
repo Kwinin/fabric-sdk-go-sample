@@ -14,6 +14,9 @@ type TransactionDetail struct {
 	TransactionId string
 	CreateTime    string
 	Args          []string
+	Type          int32
+	Version       int32
+	ChannelId     string
 }
 
 // 从SDK中Block.BlockDara.Data中提取交易具体信息
@@ -62,6 +65,9 @@ func GetTransactionInfoFromData(data []byte, needArgs bool) (*TransactionDetail,
 	result := &TransactionDetail{
 		TransactionId: channelHeader.TxId,
 		Args:          args,
+		ChannelId:     channelHeader.ChannelId,
+		Type:          channelHeader.Type,
+		Version:       channelHeader.Version,
 		CreateTime:    FormatTime(time.Unix(channelHeader.Timestamp.Seconds, 0)),
 	}
 	return result, nil
