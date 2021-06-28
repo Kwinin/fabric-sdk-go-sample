@@ -32,7 +32,7 @@ func main() {
 func Phase1(cli1, cli2 *cli.Client) {
 	log.Println("=================== Phase 1 begin ===================")
 	defer log.Println("=================== Phase 1 end ===================")
-	v := "v4"
+	v := "v3s"
 	if err := cli1.InstallCC(v, peer0Org1); err != nil {
 		log.Panicf("Intall chaincode error: %v", err)
 	}

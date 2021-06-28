@@ -1,6 +1,9 @@
 package cli
 
 import (
+	"fmt"
+	"github.com/hyperledger/fabric-sdk-go/pkg/client/ledger"
+	"github.com/hyperledger/fabric-sdk-go/third_party/github.com/hyperledger/fabric/protos/common"
 	"log"
 	"os"
 
@@ -22,6 +25,7 @@ type Client struct {
 	SDK *fabsdk.FabricSDK
 	rc  *resmgmt.Client
 	cc  *channel.Client
+	lc  *ledger.Client
 
 	// Same for each peer
 	ChannelID string
@@ -37,8 +41,9 @@ func New(cfg, org, admin, user string) *Client {
 		OrgAdmin:   admin,
 		OrgUser:    user,
 
-		CCID:      "kwinin-example-1",
-		CCPath:    "github.com/hyperledger/fabric/fabric-samples/chaincode/chaincode_example02/go/", // 相对路径是从GOPAHT/src开始的
+		CCID: "kwinin-example-2",
+		//CCPath:    "github.com/hyperledger/fabric/fabric-samples/chaincode/chaincode_example02/go/", // 相对路径是从GOPAHT/src开始的
+		CCPath:    "fabric-sdk-go-sample2/chaincode/",
 		CCGoPath:  os.Getenv("GOPATH"),
 		ChannelID: "mychannel",
 	}
@@ -51,13 +56,13 @@ func New(cfg, org, admin, user string) *Client {
 	c.SDK = sdk
 	log.Println("Initialized fabric sdk")
 
-	c.rc, c.cc = NewSdkClient(sdk, c.ChannelID, c.OrgName, c.OrgAdmin, c.OrgUser)
+	c.rc, c.cc, c.lc = NewSdkClient(sdk, c.ChannelID, c.OrgName, c.OrgAdmin, c.OrgUser)
 
 	return c
 }
 
 // NewSdkClient create resource client and channel client
-func NewSdkClient(sdk *fabsdk.FabricSDK, channelID, orgName, orgAdmin, OrgUser string) (rc *resmgmt.Client, cc *channel.Client) {
+func NewSdkClient(sdk *fabsdk.FabricSDK, channelID, orgName, orgAdmin, OrgUser string) (rc *resmgmt.Client, cc *channel.Client, lc *ledger.Client) {
 	var err error
 
 	// create rc
@@ -76,10 +81,28 @@ func NewSdkClient(sdk *fabsdk.FabricSDK, channelID, orgName, orgAdmin, OrgUser s
 	}
 	log.Println("Initialized channel client")
 
-	return rc, cc
+	lcp := sdk.ChannelContext(channelID, fabsdk.WithUser(OrgUser))
+
+	lc, err = ledger.New(lcp)
+	if err != nil {
+		log.Panicf("failed to create ledger client: %s", err)
+	}
+	log.Println("Initialized ledger client")
+	return rc, cc, lc
 }
 
 // RegisterChaincodeEvent more easy than event client to registering chaincode event.
 func (c *Client) RegisterChaincodeEvent(ccid, eventName string) (fab.Registration, <-chan *fab.CCEvent, error) {
 	return c.cc.RegisterChaincodeEvent(ccid, eventName)
+}
+
+func (c *Client) QueryBlock(number uint64) (*common.Block, error) {
+	block, err := c.lc.QueryBlock(number)
+	if err != nil {
+		fmt.Printf("failed to query block: %s\n", err)
+		return nil, err
+	}
+
+	return block, nil
+
 }

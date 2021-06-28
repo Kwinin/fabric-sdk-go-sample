@@ -6,6 +6,7 @@ require (
 	github.com/Shopify/sarama v1.23.1 // indirect
 	github.com/cloudflare/cfssl v0.0.0-20180323000720-5d63dbd981b5 // indirect
 	github.com/fsouza/go-dockerclient v1.4.4 // indirect
+	github.com/golang/protobuf v1.3.0 // indirect
 	github.com/google/pprof v0.0.0-20190723021845-34ac40c74b70 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0 // indirect
 	github.com/hashicorp/go-version v1.2.0 // indirect
